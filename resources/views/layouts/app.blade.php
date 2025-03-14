@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>ISI BURGER</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
@@ -41,7 +41,7 @@
         }
 
         .hero-section {
-            background: url('/images/hero-burger.jpg') no-repeat center center/cover;
+            background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop') no-repeat center center/cover;
             height: 500px;
             display: flex;
             align-items: center;
@@ -80,7 +80,9 @@
         <!-- Barre de navigation personnalisée -->
         <nav class="navbar navbar-expand-md navbar-dark shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                @if (Auth::check() && Auth::user()->role === 'client')
+                <a class="navbar-brand" href="{{ url('/home') }}">
+                    @endif
                     ISI Burger
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,8 +124,9 @@
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 {{ Auth::user()->name }}
                             </a>
+                            @if (Auth::user()->role === 'gestionnaire')
                             <p>Rôle de l'utilisateur : {{ Auth::user()->role }}</p>
-
+                            @endif
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault();

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 
 <head>
@@ -19,7 +18,8 @@
         }
 
         .hero-section {
-            background: url('/images/hero-burger.jpg') no-repeat center center/cover;
+            background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop') no-repeat center center/cover;
+
             height: 500px;
             display: flex;
             align-items: center;
@@ -110,7 +110,7 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <img src="/images/about-restaurant.jpg" alt="À propos de nous" class="img-fluid rounded">
+                <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop" alt="À propos de nous" class="img-fluid rounded">
             </div>
         </div>
     </div>

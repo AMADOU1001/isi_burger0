@@ -18,7 +18,7 @@
         }
 
         .hero-section {
-            background: url('/images/hero-burger.jpg') no-repeat center center/cover;
+            background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop') no-repeat center center/cover;
             height: 500px;
             display: flex;
             align-items: center;
@@ -72,7 +72,7 @@
     <!-- Barre de navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">ISI Burger</a>
+            <a class="navbar-brand" href="/home">ISI Burger</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -107,7 +107,7 @@
             <h1>Bienvenue chez ISI Burger</h1>
             <p>Découvrez nos délicieux burgers faits maison</p>
             @if (Auth::check() && Auth::user()->role === 'client')
-            <a href="{{ route('burgers.index') }}" class="btn btn-primary">Voir le menu</a>
+            <a href="#" class="btn btn-primary">Explorer notre monde !</a>
             @elseif (Auth::check() && Auth::user()->role === 'gestionnaire')
             <a href="{{ route('gestionnaire.home') }}" class="btn btn-primary">Voir le dashboard</a>
             @else
@@ -127,10 +127,12 @@
                 </p>
             </div>
             <div class="col-md-6">
-                <img src="/images/about-restaurant.jpg" alt="À propos de nous" class="img-fluid rounded">
+                <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1000&auto=format&fit=crop" alt="À propos de nous" class="img-fluid rounded">
             </div>
         </div>
     </div>
+
+
 
     <!-- Section Menu -->
     <div class="bg-dark py-5">
