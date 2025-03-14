@@ -7,6 +7,8 @@ use App\Models\Burger;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth; // Import de la façade Auth
 use Illuminate\Http\Request;
+use App\Mail\OrderValidatedMail;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -182,26 +184,32 @@ class OrderController extends Controller
      */
     public function processPayment(Request $request, Order $order)
     {
-        // Vérifie que l'utilisateur a le droit de modifier cette commande
-        if (Auth::user()->role !== 'gestionnaire') {
+        // Vérifie que l'utilisateur est le propriétaire de la commande
+        if ($order->user_id !== Auth::id()) {
             abort(403, 'Accès non autorisé.');
+        }
+
+        // Vérifie que la commande est en attente
+        if ($order->status !== 'en_attente') {
+            return redirect()->route('home')->with('error', 'Cette commande ne peut pas être payée.');
         }
 
         // Validation des données du formulaire
         $request->validate([
-            'amount' => 'required|numeric|min:0',
+            'card_number' => 'required|string',
+            'expiry_date' => 'required|string',
+            'cvv' => 'required|string',
         ]);
 
-        // Met à jour le statut du paiement
-        if ($request->amount >= $order->total_price) {
-            $order->update([
-                'payment_status' => 'payee',
-            ]);
-            return redirect()->route('orders.index')->with('success', 'Paiement enregistré avec succès !');
-        } else {
-            return redirect()->back()->with('error', 'Le montant payé est insuffisant.');
-        }
+        // Met à jour le statut de la commande
+        $order->update([
+            'status' => 'en_traitement', // Statut après paiement
+            'payment_status' => 'payée', // Statut du paiement
+        ]);
+
+        return redirect()->route('home')->with('success', 'Paiement effectué avec succès ! La commande est en traitement.');
     }
+
 
     public function pay(Order $order)
     {
@@ -215,10 +223,8 @@ class OrderController extends Controller
             return redirect()->route('home')->with('error', 'Cette commande ne peut pas être payée.');
         }
 
-        // Met à jour le statut de la commande
-        $order->update(['status' => 'payée']);
-
-        return redirect()->route('home')->with('success', 'Commande payée avec succès !');
+        // Redirige vers la page de paiement
+        return view('orders.payment', compact('order'));
     }
 
     public function cancel(Order $order)
@@ -237,5 +243,33 @@ class OrderController extends Controller
         $order->delete();
 
         return redirect()->route('home')->with('success', 'Commande annulée avec succès !');
+    }
+
+    /**
+     * Valide une commande (gestionnaire uniquement).
+     */
+
+
+    public function validateOrder(Request $request, Order $order)
+    {
+        // Vérifie que l'utilisateur est un gestionnaire
+        if (Auth::user()->role !== 'gestionnaire') {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        // Vérifie que la commande est en traitement
+        if ($order->status !== 'en_traitement') {
+            return redirect()->route('orders.index')->with('error', 'Cette commande ne peut pas être validée.');
+        }
+
+        // Met à jour le statut de la commande
+        $order->update([
+            'status' => 'validée', // Statut après validation
+        ]);
+
+        // Envoie l'e-mail de confirmation avec la facture en PDF
+        Mail::to($order->user->email)->send(new OrderValidatedMail($order));
+
+        return redirect()->route('gestionnaire.home')->with('success', 'Commande validée avec succès !');
     }
 }

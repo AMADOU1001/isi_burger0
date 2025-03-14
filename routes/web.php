@@ -30,6 +30,8 @@ Route::middleware(IsManager::class)->group(function () {
     Route::get('/burgers/edit', [BurgerController::class, 'edit'])->name('burgers.edit');
     Route::post('/burgers/update', [BurgerController::class, 'update'])->name('burgers.update');
     Route::post('/burgers/destroy', [BurgerController::class, 'destroy'])->name('burgers.destroy');
+    Route::post('/orders/{order}/validate', [OrderController::class, 'validateOrder'])->name('orders.validate');
+    Route::get('/gestionnaire/home', [HomeController::class, 'index'])->name('gestionnaire.home');
 });
 
 
@@ -45,12 +47,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::post('/orders/{order}/validate', [OrderController::class, 'validateOrder'])->name('orders.validate');
 });
 
 
 // Routes pour les paiements
 Route::get('/orders/{order}/payment', [OrderController::class, 'payment'])->name('orders.payment');
 Route::post('/orders/{order}/payment', [OrderController::class, 'processPayment'])->name('orders.processPayment');
+
 // Routes pour les publications
 Route::post('/burgers/{burger}/toggle-publish', [BurgerController::class, 'togglePublish'])->name('burgers.togglePublish');
 

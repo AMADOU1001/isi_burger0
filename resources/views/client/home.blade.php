@@ -1,44 +1,35 @@
-<!-- Section : Vos Commandes -->
-<div class="mb-5">
-    <h2>Vos Commandes</h2>
-    @if ($orders->isEmpty())
-    <p>Vous n'avez aucune commande pour le moment.</p>
-    @else
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Prix Total</th>
-                <th>Statut</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($orders as $order)
-            <tr>
-                <td>{{ $order->id }}</td>
-                <td>{{ $order->total_price }} €</td>
-                <td>{{ $order->status }}</td>
-                <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                <td>
-                    @if ($order->status === 'en_attente')
-                    <form action="{{ route('orders.pay', $order->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm">Payer</button>
-                    </form>
-                    <form action="{{ route('orders.cancel', $order->id) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">Annuler</button>
-                    </form>
-                    @else
-                    <span class="text-muted">Aucune action disponible</span>
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    @endif
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <!-- Section Hero -->
+    <div class="hero-section">
+        <div>
+            <h1>Bienvenue chez ISI Burger</h1>
+            <p>Découvrez nos délicieux burgers faits maison</p>
+        </div>
+    </div>
+
+    <!-- Section Menu -->
+    <div class="bg-dark py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Notre Menu</h2>
+            <div class="row">
+                @foreach ($burgers as $burger)
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ asset('images/' . $burger->image) }}" class="card-img-top" alt="{{ $burger->name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $burger->name }}</h5>
+                            <p class="card-text">{{ $burger->description }}</p>
+                            <p class="card-text"><strong>Prix : {{ $burger->price }} €</strong></p>
+                            <a href="{{ route('orders.create', ['burger_id' => $burger->id]) }}" class="btn btn-primary">Commander</a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
 </div>
+@endsection

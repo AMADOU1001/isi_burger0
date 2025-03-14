@@ -106,8 +106,10 @@
         <div>
             <h1>Bienvenue chez ISI Burger</h1>
             <p>Découvrez nos délicieux burgers faits maison</p>
-            @if (Auth::check())
+            @if (Auth::check() && Auth::user()->role === 'client')
             <a href="{{ route('burgers.index') }}" class="btn btn-primary">Voir le menu</a>
+            @elseif (Auth::check() && Auth::user()->role === 'gestionnaire')
+            <a href="{{ route('gestionnaire.home') }}" class="btn btn-primary">Voir le dashboard</a>
             @else
             <p>Veuillez vous <a href="{{ route('login') }}" class="text-warning">connecter</a> ou vous <a href="{{ route('register') }}" class="text-warning">inscrire</a> pour voir le menu.</p>
             @endif
