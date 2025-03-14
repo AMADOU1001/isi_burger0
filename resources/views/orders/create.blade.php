@@ -19,7 +19,7 @@
                                         <label for="burger_{{ $burger->id }}" class="form-check-label">
                                             <h5 class="mb-1">{{ $burger->name }}</h5>
                                             <p class="mb-1">{{ $burger->description }}</p>
-                                            <p class="mb-0"><strong>Prix : {{ $burger->price }} €</strong></p>
+                                            <p class="mb-0"><strong>Prix : {{ $burger->price }} F CFA</strong></p>
                                         </label>
                                     </div>
                                 </div>

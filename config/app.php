@@ -123,4 +123,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+
+    'File' => Illuminate\Support\Facades\File::class,
+
+
 ];

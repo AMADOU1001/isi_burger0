@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth; // Import de la façade Auth
 use Illuminate\Http\Request;
 use App\Mail\OrderValidatedMail;
 use Illuminate\Support\Facades\Mail;
+use App\Events\OrderValidated;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -163,7 +166,7 @@ class OrderController extends Controller
         }
 
         $order->delete(); // Supprime la commande
-        return redirect()->route('orders.index')->with('success', 'Commande supprimée avec succès !');
+        return redirect()->route('orders.index')->with('success', 'Commande supprimée avec succès!');
     }
 
     /**
@@ -250,26 +253,73 @@ class OrderController extends Controller
      */
 
 
+
+
+
+
     public function validateOrder(Request $request, Order $order)
     {
-        // Vérifie que l'utilisateur est un gestionnaire
+        // Vérification du rôle de l'utilisateur
         if (Auth::user()->role !== 'gestionnaire') {
             abort(403, 'Accès non autorisé.');
         }
 
-        // Vérifie que la commande est en traitement
+        // Vérification du statut de la commande
         if ($order->status !== 'en_traitement') {
-            return redirect()->route('orders.index')->with('error', 'Cette commande ne peut pas être validée.');
+            return redirect()->route('gestionnaire.home')->with('error', 'Cette commande ne peut pas être validée.');
         }
 
-        // Met à jour le statut de la commande
+        // Mise à jour du statut de la commande
         $order->update([
-            'status' => 'validée', // Statut après validation
+            'status' => 'validée',
         ]);
 
-        // Envoie l'e-mail de confirmation avec la facture en PDF
-        Mail::to($order->user->email)->send(new OrderValidatedMail($order));
+        // Déclencher l'événement pour envoyer l'email et générer la facture
+        event(new OrderValidated($order));
 
-        return redirect()->route('gestionnaire.home')->with('success', 'Commande validée avec succès !');
+        // Vérifier et créer le dossier invoices s'il n'existe pas
+        Storage::makeDirectory('invoices'); // Crée le dossier s'il n'existe pas
+
+        // Générer la facture PDF
+        $pdf = Pdf::loadView('pdf.invoice', ['order' => $order]);
+        $pdfPath = 'invoices' . DIRECTORY_SEPARATOR . 'invoice_' . $order->id . '.pdf';
+
+        // Sauvegarder le fichier PDF dans storage/app/invoices/
+        Storage::put($pdfPath, $pdf->output());
+
+        // Envoyer l'email avec la facture en pièce jointe
+        Mail::to($order->user->email)->send(new OrderValidatedMail($order, $pdfPath));
+
+        return redirect()->route('gestionnaire.home')->with('success', 'Commande validée avec succès et mail envoyé !');
+    }
+
+
+
+
+    public function showStatistics()
+    {
+        $year = now()->year; // Vous pouvez rendre cette valeur dynamique
+        $monthlyOrders = Order::getMonthlyOrderStatistics($year);
+
+        return view('orders.statistics', compact('monthlyOrders'));
+    }
+
+    public function downloadInvoice($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        // Chemin du fichier PDF
+        $pdfPath = "private/invoices/invoice_{$order->id}.pdf";
+
+        // Vérifier si le fichier existe
+        if (!Storage::exists($pdfPath)) {
+            return abort(404, "Facture introuvable.");
+        }
+
+        // Retourner le PDF en téléchargement
+        return response()->file(Storage::path($pdfPath), [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="facture_' . $order->id . '.pdf"',
+        ]);
     }
 }

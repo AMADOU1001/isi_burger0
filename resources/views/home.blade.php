@@ -50,7 +50,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $burger->name }}</h5>
                         <p class="card-text">{{ $burger->description }}</p>
-                        <p class="card-text"><strong>Prix :</strong> {{ $burger->price }} €</p>
+                        <p class="card-text"><strong>Prix :</strong> {{ $burger->price }} F CFA</p>
                         <form action="{{ route('orders.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="burger_id" value="{{ $burger->id }}">

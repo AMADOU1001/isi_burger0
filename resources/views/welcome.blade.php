@@ -186,7 +186,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container text-center">
-            <p>&copy; 2023 ISI Burger. Tous droits réservés.</p>
+            <p>&copy; 2025 ISI Burger. Tous droits réservés.</p>
         </div>
     </footer>
 

@@ -3,44 +3,29 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Order;
+use Illuminate\Support\Facades\Storage;
 
 class OrderValidatedMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use  SerializesModels;
 
     public $order;
+    public $pdfPath;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(Order $order)
+    public function __construct($order, $pdfPath)
     {
         $this->order = $order;
+        $this->pdfPath = $pdfPath;
     }
 
-    /**
-     * Build the message.
-     */
     public function build()
     {
-        return $this->subject('Votre commande a été validée !')
-            ->view('emails.order_validated') // Vue de l'e-mail
-            ->attachData($this->generatePdf(), 'facture.pdf', [
+        return $this->view('mail.order_validated')
+            ->attach(Storage::path($this->pdfPath), [  // 🔥 CHANGEMENT ICI 🔥
+                'as' => 'facture_' . $this->order->id . '.pdf',
                 'mime' => 'application/pdf',
             ]);
-    }
-
-    /**
-     * Génère le PDF de la facture.
-     */
-    protected function generatePdf()
-    {
-        // Utilise une bibliothèque comme DomPDF pour générer le PDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice', ['order' => $this->order]);
-        return $pdf->output();
     }
 }

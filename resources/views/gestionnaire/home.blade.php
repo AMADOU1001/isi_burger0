@@ -27,7 +27,7 @@
                 @foreach ($burgers as $burger)
                 <tr>
                     <td>{{ $burger->name }}</td>
-                    <td>{{ $burger->price }} €</td>
+                    <td>{{ $burger->price }} F CFA</td>
                     <td>{{ $burger->description }}</td>
                     <td>{{ $burger->is_published ? 'Publié' : 'Non publié' }}</td>
                     <td>
@@ -78,7 +78,7 @@
                 <tr>
                     <td>{{ $order->id }}</td>
                     <td>{{ $order->user->name }}</td>
-                    <td>{{ $order->total_price }} €</td>
+                    <td>{{ $order->total_price }} F CFA</td>
                     <td>{{ $order->status }}</td>
                     <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                     <td>
@@ -88,9 +88,18 @@
                             <button type="submit" class="btn btn-primary btn-sm">Valider</button>
                         </form>
                         @else
-                        <span class="text-muted">Aucune action disponible</span>
+                        <form action="{{ route('orders.show', $order->id) }}" method="GET" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm">Voir détails</button>
+                        </form>
+                        @if ($order->status === 'validée')
+                        <a href="{{ route('orders.invoice', $order->id) }}" class="btn btn-success btn-sm" target="_blank">
+                            Voir Facture
+                        </a>
+                        @endif
                         @endif
                     </td>
+
                 </tr>
                 @endforeach
             </tbody>
@@ -102,6 +111,7 @@
     <div class="mb-5">
         <h2>Statistiques</h2>
         <div class="row">
+            <!-- Commandes en cours -->
             <div class="col-md-4">
                 <div class="card bg-primary text-white">
                     <div class="card-body">
@@ -110,6 +120,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Commandes validées -->
             <div class="col-md-4">
                 <div class="card bg-success text-white">
                     <div class="card-body">
@@ -118,6 +130,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Recettes journalières -->
             <div class="col-md-4">
                 <div class="card bg-info text-white">
                     <div class="card-body">
@@ -129,11 +143,7 @@
         </div>
     </div>
 
-    <!-- Graphique : Commandes par mois -->
-    <div class="mb-5">
-        <h3>Commandes par mois</h3>
-        <canvas id="ordersChart" width="400" height="200"></canvas>
-    </div>
+
 
     <!-- Graphique : Burgers vendus par mois -->
     <div class="mb-5">
@@ -142,61 +152,55 @@
     </div>
 
     <!-- Inclure Chart.js -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Script pour les graphiques -->
-    <script>
-        // Données pour le graphique des commandes
-        const ordersData = {
-            labels: {
-                !!json_encode($monthlyOrders - > pluck('month')) !!
-            },
-            datasets: [{
-                label: 'Commandes par mois',
-                data: {
-                    !!json_encode($monthlyOrders - > pluck('total')) !!
-                },
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        };
+    <!-- Section : Graphique des commandes par mois -->
+    @if($monthlyOrders->isEmpty())
+    <p>Aucune donnée disponible pour les commandes par mois.</p>
+    @else
+    <canvas id="ordersChart" width="400" height="200"
+        data-labels="{{ json_encode($monthlyOrders->pluck('month_name')) }}"
+        data-totals="{{ json_encode($monthlyOrders->pluck('total')) }}"
+        data-validated-totals="{{ json_encode($monthlyOrders->pluck('validated_total')) }}">
+    </canvas>
+    @endif
 
-        // Données pour le graphique des burgers vendus
-        const burgersData = {
-            labels: {
-                !!json_encode($monthlyBurgersSold - > pluck('month')) !!
-            },
+    <!-- Inclure Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Récupérer les données depuis les attributs HTML
+        const ordersChart = document.getElementById('ordersChart');
+        const labels = JSON.parse(ordersChart.dataset.labels || '[]'); // Utiliser un tableau vide si undefined
+        const totals = JSON.parse(ordersChart.dataset.totals || '[]'); // Utiliser un tableau vide si undefined
+        const validatedTotals = JSON.parse(ordersChart.dataset.validatedTotals || '[]'); // Utiliser un tableau vide si undefined
+
+        // Données pour le graphique des commandes par mois
+        const ordersData = {
+            labels: labels,
             datasets: [{
-                label: 'Burgers vendus par mois',
-                data: {
-                    !!json_encode($monthlyBurgersSold - > pluck('total')) !!
+                    label: 'Commandes par mois',
+                    data: totals,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
                 },
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
+                {
+                    label: 'Commandes validées par mois',
+                    data: validatedTotals,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
         };
 
         // Configurer le graphique des commandes
-        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        const ordersCtx = ordersChart.getContext('2d');
         new Chart(ordersCtx, {
             type: 'bar',
             data: ordersData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Configurer le graphique des burgers vendus
-        const burgersCtx = document.getElementById('burgersChart').getContext('2d');
-        new Chart(burgersCtx, {
-            type: 'bar',
-            data: burgersData,
             options: {
                 scales: {
                     y: {

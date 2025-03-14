@@ -23,23 +23,31 @@ class HomeController extends Controller
             // Récupère toutes les commandes avec les utilisateurs associés
             $orders = Order::with('user')->get();
 
-            // Statistiques
-            $todayPendingOrders = $this->getTodayPendingOrders();
-            $todayCompletedOrders = $this->getTodayCompletedOrders();
-            $todayRevenue = $this->getTodayRevenue();
-            $monthlyOrders = $this->getMonthlyOrders();
-            $monthlyBurgersSold = $this->getMonthlyBurgersSold();
+            // Statistiques des commandes par mois
+            $year = now()->year; // Année en cours
+            $monthlyOrders = Order::getMonthlyOrderStatistics($year);
 
+            // Statistiques journalières
+            $todayPendingOrders = Order::whereDate('created_at', now()->toDateString())
+                ->where('status', 'en_attente')
+                ->count();
+
+            $todayCompletedOrders = Order::whereDate('created_at', now()->toDateString())
+                ->where('status', 'validée')
+                ->count();
+
+            $todayRevenue = Order::whereDate('created_at', now()->toDateString())
+                ->where('status', 'validée')
+                ->sum('total_price');
 
             // Passe les variables à la vue
             return view('gestionnaire.home', compact(
                 'burgers',
                 'orders',
+                'monthlyOrders',
                 'todayPendingOrders',
                 'todayCompletedOrders',
-                'todayRevenue',
-                'monthlyOrders',
-                'monthlyBurgersSold'
+                'todayRevenue'
             ));
         } else {
             // Redirige le client vers la vue des burgers publiés et de ses commandes

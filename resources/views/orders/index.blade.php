@@ -20,7 +20,7 @@
             @foreach ($orders as $order)
             <tr>
                 <td>{{ $order->id }}</td>
-                <td>{{ $order->total_price }} €</td>
+                <td>{{ $order->total_price }} F CFA</td>
                 <td>{{ $order->status }}</td>
                 <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                 <td>
@@ -40,7 +40,10 @@
                         <button type="submit" class="btn btn-primary btn-sm">Valider</button>
                     </form>
                     @else
-                    <span class="text-muted">Aucune action disponible</span>
+                    <form action="{{ route('orders.show', $order->id) }}" method="GET" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">Voir détails</button>
+                    </form>
                     @endif
                 </td>
             </tr>

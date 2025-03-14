@@ -8,6 +8,8 @@ use App\Http\Middleware\IsClient;
 use App\Http\Middleware\IsManager;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use App\Mail\OrderValidatedMail;
+use App\Http\Controllers\TestController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +34,7 @@ Route::middleware(IsManager::class)->group(function () {
     Route::post('/burgers/destroy', [BurgerController::class, 'destroy'])->name('burgers.destroy');
     Route::post('/orders/{order}/validate', [OrderController::class, 'validateOrder'])->name('orders.validate');
     Route::get('/gestionnaire/home', [HomeController::class, 'index'])->name('gestionnaire.home');
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');
 });
 
 
@@ -63,3 +66,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
     Route::delete('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
+
+
+Route::get('/test-pdf', [TestController::class, 'testPdf']);

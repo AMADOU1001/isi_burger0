@@ -44,7 +44,7 @@
             <tr>
                 <td>{{ $burger->name }}</td>
                 <td>{{ $burger->pivot->quantity }}</td>
-                <td>{{ $burger->price }} €</td>
+                <td>{{ $burger->price }} F CFA</td>
                 <td>{{ $burger->price * $burger->pivot->quantity }} €</td>
             </tr>
             @endforeach
