@@ -10,6 +10,12 @@
 
     <title>ISI BURGER</title>
 
+    <!-- Animate.css via CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
@@ -22,9 +28,19 @@
 
     <!-- Styles personnalisés -->
     <style>
+        html,
         body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             background-color: #1a1a1a;
             color: #ffffff;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .navbar {
@@ -43,6 +59,8 @@
         .hero-section {
             background: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop') no-repeat center center/cover;
             height: 500px;
+            width: 100vw;
+            /* Utilise toute la largeur de la fenêtre */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -72,6 +90,35 @@
             background-color: #444444;
             color: #ffffff;
         }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            font-size: 1.1rem;
+        }
+
+        .dropdown-item {
+            font-size: 1rem;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            flex-grow: 1;
+        }
+
+        /* Suppression des marges et paddings par défaut */
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+        }
     </style>
 </head>
 
@@ -79,12 +126,11 @@
     <div id="app">
         <!-- Barre de navigation personnalisée -->
         <nav class="navbar navbar-expand-md navbar-dark shadow-sm">
-            <div class="container">
-                @if (Auth::check() && Auth::user()->role === 'client')
-                <a class="navbar-brand" href="{{ url('/home') }}">
-                    @endif
-                    ISI Burger
+            <div class="container-fluid"> <!-- Utilisation de container-fluid -->
+                <a class="navbar-brand" href="{{ url('/') }}">
+                    <i class="bi bi-house-door me-2"></i>ISI BURGER
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -95,10 +141,14 @@
                         @auth
                         @if (Auth::user()->role === 'client')
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">Accueil</a>
+                            <a class="nav-link" href="{{ route('home') }}">
+                                <i class="bi bi-house me-2"></i>Accueil
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('orders.index') }}">Mes Commandes</a>
+                            <a class="nav-link" href="{{ route('orders.index') }}">
+                                <i class="bi bi-cart me-2"></i>Mes Commandes
+                            </a>
                         </li>
                         @endif
                         @endauth
@@ -110,28 +160,32 @@
                         @guest
                         @if (Route::has('login'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">{{ __('Connexion') }}</a>
+                            <a class="nav-link" href="{{ route('login') }}">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>{{ __('Connexion') }}
+                            </a>
                         </li>
                         @endif
 
                         @if (Route::has('register'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">{{ __('Inscription') }}</a>
+                            <a class="nav-link" href="{{ route('register') }}">
+                                <i class="bi bi-person-plus me-2"></i>{{ __('Inscription') }}
+                            </a>
                         </li>
                         @endif
                         @else
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->name }}
+                                <i class="bi bi-person-circle me-2"></i>{{ Auth::user()->name }}
                             </a>
                             @if (Auth::user()->role === 'gestionnaire')
-                            <p>Rôle de l'utilisateur : {{ Auth::user()->role }}</p>
+                            <p class="text-white ms-3">Rôle de l'utilisateur : {{ Auth::user()->role }}</p>
                             @endif
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                    {{ __('Déconnexion') }}
+                                    <i class="bi bi-box-arrow-left me-2"></i>{{ __('Déconnexion') }}
                                 </a>
 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
@@ -146,7 +200,9 @@
         </nav>
 
         <main class="py-4">
-            @yield('content')
+            <div class="content">
+                @yield('content')
+            </div>
         </main>
     </div>
 

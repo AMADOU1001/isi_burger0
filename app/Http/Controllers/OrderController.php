@@ -18,14 +18,25 @@ class OrderController extends Controller
     /**
      * Affiche la liste des commandes.
      */
-    public function index()
+    public function index(Request $request)
     {
-        if (Auth::user()->role === 'gestionnaire') {
+        // Récupérer l'utilisateur connecté
+        $user = Auth::user();
+
+        // Récupérer toutes les commandes en fonction du rôle de l'utilisateur
+        if ($user->role === 'gestionnaire') {
             $orders = Order::with('user', 'burgers')->get(); // Toutes les commandes pour le gestionnaire
         } else {
-            $orders = Order::where('user_id', Auth::id())->with('burgers')->get(); // Commandes de l'utilisateur connecté
+            $orders = Order::where('user_id', $user->id)->with('burgers')->get(); // Commandes de l'utilisateur connecté
         }
 
+        // Filtrer les commandes en fonction du statut sélectionné
+        $status = $request->input('status'); // Récupérer le statut depuis la requête
+        if ($status && in_array($status, ['en_traitement', 'validée'])) {
+            $orders = $orders->where('status', $status); // Filtrer les commandes par statut
+        }
+
+        // Passer les commandes filtrées à la vue
         return view('orders.index', compact('orders'));
     }
 
@@ -149,7 +160,7 @@ class OrderController extends Controller
             'status' => $request->status,
         ]);
 
-        return redirect()->route('orders.index')->with('success', 'Commande mise à jour avec succès !');
+        return redirect()->route('gestionnaire.home')->with('success', 'Commande mise à jour avec succès !');
     }
 
     /**
@@ -166,7 +177,7 @@ class OrderController extends Controller
         }
 
         $order->delete(); // Supprime la commande
-        return redirect()->route('orders.index')->with('success', 'Commande supprimée avec succès!');
+        return redirect()->route('gestionnaire.home')->with('success', 'Commande supprimée avec succès!');
     }
 
     /**

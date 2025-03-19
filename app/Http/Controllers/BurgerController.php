@@ -69,7 +69,7 @@ class BurgerController extends Controller
             'is_published' => false, // Par défaut, le burger n'est pas publié
         ]);
 
-        return redirect()->route('burgers.index')->with('success', 'Burger créé avec succès !');
+        return redirect()->route('gestionnaire.home')->with('success', 'Burger créé avec succès !');
     }
 
     /**
@@ -129,7 +129,7 @@ class BurgerController extends Controller
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('burgers.index')->with('success', 'Burger mis à jour avec succès !');
+        return redirect()->route('gestionnaire.home')->with('success', 'Burger mis à jour avec succès !');
     }
 
     /**
@@ -148,7 +148,7 @@ class BurgerController extends Controller
         }
 
         $burger->delete(); // Supprime le burger
-        return redirect()->route('burgers.index')->with('success', 'Burger supprimé avec succès !');
+        return redirect()->route('gestionnaire.home')->with('success', 'Burger supprimé avec succès !');
     }
 
     /**
@@ -162,6 +162,6 @@ class BurgerController extends Controller
         }
 
         $burger->update(['is_published' => !$burger->is_published]);
-        return redirect()->route('burgers.index')->with('success', 'Statut de publication mis à jour.');
+        return redirect()->route('gestionnaire.home')->with('success', 'Statut de publication mis à jour.');
     }
 }

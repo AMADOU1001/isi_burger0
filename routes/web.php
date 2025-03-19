@@ -29,9 +29,9 @@ Route::middleware(IsManager::class)->group(function () {
     Route::post('/burgers/{burger}/toggle-publish', [BurgerController::class, 'togglePublish'])->name('burgers.togglePublish');
     Route::get('/burgers/create', [BurgerController::class, 'create'])->name('burgers.create');
     Route::post('/burgers/store', [BurgerController::class, 'store'])->name('burgers.store');
-    Route::get('/burgers/edit', [BurgerController::class, 'edit'])->name('burgers.edit');
-    Route::post('/burgers/update', [BurgerController::class, 'update'])->name('burgers.update');
-    Route::post('/burgers/destroy', [BurgerController::class, 'destroy'])->name('burgers.destroy');
+    Route::get('/burgers/{burger}/edit', [BurgerController::class, 'edit'])->name('burgers.edit');
+    Route::put('/burgers/{burger}/update', [BurgerController::class, 'update'])->name('burgers.update');
+    Route::delete('/burgers/{burger}/destroy', [BurgerController::class, 'destroy'])->name('burgers.destroy');
     Route::post('/orders/{order}/validate', [OrderController::class, 'validateOrder'])->name('orders.validate');
     Route::get('/gestionnaire/home', [HomeController::class, 'index'])->name('gestionnaire.home');
     Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice');

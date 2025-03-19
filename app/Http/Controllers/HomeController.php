@@ -29,7 +29,7 @@ class HomeController extends Controller
 
             // Statistiques journalières
             $todayPendingOrders = Order::whereDate('created_at', now()->toDateString())
-                ->where('status', 'en_attente')
+                ->where('status', 'en_traitement')
                 ->count();
 
             $todayCompletedOrders = Order::whereDate('created_at', now()->toDateString())
